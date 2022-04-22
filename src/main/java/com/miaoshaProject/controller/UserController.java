@@ -56,23 +56,9 @@ public class UserController extends BaseController {
         }
         //用户登录服务
         UserModel userModel = uesrService.validateLogin(telphone, this.encodeByMD5(encrptPassword));
-
-        String fullContentType = "application/json;charset=UTF-8";
-        response.setContentType(fullContentType);//告知客户端响应正文类型
-        response.setHeader("Cache-Control", "no-cache");//控制浏览器不要缓存
-
-        //设置允许跨域
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type,token");
-        response.setHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-
         //服务层没throw Exception，用户登录成功，将凭证加入session内
         /*request.getSession().setAttribute("LOGIN_USER", userModel.getId());*/
-        Cookie cookie = new Cookie("LOGIN_USER", userModel.getId().toString());
-        cookie.setMaxAge(3600);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+
         return CommonReturnType.create(userModel);
     }
 
