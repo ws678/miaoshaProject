@@ -5,6 +5,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.miaoshaProject.controller.viewobject.UserVO;
 import com.miaoshaProject.error.BusinessException;
 import com.miaoshaProject.error.EnumBusinessError;
+import com.miaoshaProject.login_config.JedisClientConfig;
 import com.miaoshaProject.response.CommonReturnType;
 import com.miaoshaProject.service.UesrService;
 import com.miaoshaProject.service.model.UserModel;
@@ -16,16 +17,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -48,7 +55,7 @@ public class UserController extends BaseController {
     @ResponseBody
     public CommonReturnType login(@RequestParam(name = "telphone") String telphone,
                                   @RequestParam(name = "encrptPassword") String encrptPassword,
-                                  HttpServletRequest request, HttpServletResponse response) throws BusinessException, NoSuchAlgorithmException {
+                                  HttpServletRequest request, HttpServletResponse response) throws BusinessException, NoSuchAlgorithmException, UnknownHostException {
 
         //入参校验
         if (StringUtils.isEmpty(telphone) || StringUtils.isEmpty(encrptPassword)) {
@@ -58,8 +65,28 @@ public class UserController extends BaseController {
         UserModel userModel = uesrService.validateLogin(telphone, this.encodeByMD5(encrptPassword));
         //服务层没throw Exception，用户登录成功，将凭证加入session内
         /*request.getSession().setAttribute("LOGIN_USER", userModel.getId());*/
-
+        //2022-04-24将session存入redis
+        manageSession(userModel);
         return CommonReturnType.create(userModel);
+    }
+
+    private void manageSession(UserModel userModel) throws UnknownHostException {
+        JedisClientConfig jedisClientConfig = new JedisClientConfig();
+        JedisPool jedisPool = jedisClientConfig.getJedisPool();
+        Jedis jedis = jedisClientConfig.getJedis(jedisPool);
+        Map<String, String> userMap = new HashMap<>();
+        userMap.put("userId", String.valueOf(userModel.getId()));
+        userMap.put("userName", userModel.getName());
+        userMap.put("userAge", String.valueOf(userModel.getAge()));
+        userMap.put("userGender", String.valueOf(userModel.getGender()));
+        userMap.put("userTelPhone", userModel.getTelpphone());
+        //取IP地址作为key
+        InetAddress addr = InetAddress.getLocalHost();
+        jedis.hmset(addr.getHostAddress(), userMap);
+        //设置三十分钟过期
+        jedis.expire("login_user", 60 * 30);
+        //关闭连接对象
+        jedisClientConfig.closeJedisAndJedisPool(jedisPool, jedis);
     }
 
     //用户注册接口
