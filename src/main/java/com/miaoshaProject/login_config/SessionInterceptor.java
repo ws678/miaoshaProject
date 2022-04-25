@@ -65,7 +65,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
         }else {
             //用户是登录状态 重新设置session过期时间
             JedisPool jedisPool_new = jedisClientConfig.getJedisPool();
-            Jedis jedis_new = jedisClientConfig.getJedis(jedisPool);
+            Jedis jedis_new = jedisClientConfig.getJedis(jedisPool_new);
             jedis_new.expire(addr.getHostAddress(),60 * 30);
             jedisClientConfig.closeJedisAndJedisPool(jedisPool_new,jedis_new);
         }
