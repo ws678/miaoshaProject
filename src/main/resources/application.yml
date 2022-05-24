@@ -1,0 +1,28 @@
+#tomcat
+server:
+  port: 8080
+#mybatis
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+#spring
+spring:
+  #Freemarker配置
+  freemarker:
+    allow-request-override: false
+    cache: false
+    check-template-location: true
+    charset: UTF-8
+    content-type: text/html; charset=utf-8
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: false
+    ## 模版文件结尾.ftl
+    suffix: .ftl
+    ## 模版文件目录
+    template-loader-path: classpath:/templates
+  #设置不同环境配置文件读取
+  profiles:
+    active: dev
+#logback
+logging:
+  config: classpath:log/logback.xml

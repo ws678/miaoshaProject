@@ -1,0 +1,15 @@
+#生产环境
+spring:
+  #mysql
+  datasource:
+    url: jdbc:mysql://IP地址:端口号/miaosha
+    name: miaosha
+    username: username
+    password: password
+    #druid
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #redis
+  redis:
+    host: IP地址
+    port: 6379
