@@ -4,7 +4,6 @@ import com.alibaba.druid.util.StringUtils;
 import com.miaoshaproject.controller.viewobject.UserVO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EnumBusinessError;
-import com.miaoshaproject.login_config.JedisClientConfig;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.UesrService;
 import com.miaoshaproject.service.model.UserModel;
@@ -14,8 +13,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -124,10 +121,10 @@ public class UserController extends BaseController {
         /*JedisPool jedisPool = JedisClientConfig.getJedisPool();
         Jedis jedis = JedisClientConfig.getJedis(jedisPool);*/
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userId", String.valueOf(userModel.getId()));
+        userMap.put("userId", userModel.getId().toString());
         userMap.put("userName", userModel.getName());
-        userMap.put("userAge", String.valueOf(userModel.getAge()));
-        userMap.put("userGender", String.valueOf(userModel.getGender()));
+        userMap.put("userAge", userModel.getAge().toString());
+        userMap.put("userGender", userModel.getGender().toString());
         userMap.put("userTelPhone", userModel.getTelpphone());
         //取IP地址作为key
         InetAddress addr = InetAddress.getLocalHost();
