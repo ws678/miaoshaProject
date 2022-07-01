@@ -1,7 +1,7 @@
 package com.miaoshaproject;
 
 import com.beust.jcommander.internal.Lists;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.time.*;

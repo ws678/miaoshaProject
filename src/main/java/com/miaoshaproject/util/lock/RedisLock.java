@@ -63,7 +63,7 @@ public class RedisLock implements Lock {
     @Override
     public void unlock() {
 
-        redisTemplate.delete("LockName");
+        redisTemplate.delete(key);
     }
 
     @Override

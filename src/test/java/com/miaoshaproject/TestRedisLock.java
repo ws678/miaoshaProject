@@ -5,8 +5,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.function.BiConsumer;
 
 /**
  * @Author wangshuo
@@ -24,6 +27,8 @@ public class TestRedisLock {
     @Test
     public void stockThread() {
 
+        //初始化LockKey
+        redisLock.setKey("KeyTest");
         for (int i = 0; i < 5; i++) {
 
             new Thread(() -> {
@@ -43,11 +48,6 @@ public class TestRedisLock {
     //减少库存的方法
     public boolean reduceStock() {
         if (num > 0) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             num--;
             return true;
         } else
