@@ -9,8 +9,11 @@ import com.miaoshaproject.service.UesrService;
 import com.miaoshaproject.service.model.UserModel;
 import com.miaoshaproject.util.lock.RedisLock;
 import com.miaoshaproject.util.redis.RedisUtil;
+import jodd.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import sun.misc.BASE64Encoder;
@@ -25,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author wangshuo
@@ -42,6 +46,11 @@ public class UserController extends BaseController {
     RedisUtil redisUtil;
     @Autowired
     RedisLock redisLock;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    private static final String USER_LOCK = "lock_user_";
+    private static final String LOGIN_FAIL_COUNT = "pw_fail_count_";
+
     //库存数量
     private static int num = 3;
 
@@ -55,9 +64,9 @@ public class UserController extends BaseController {
     }
 
     //测试redis实现分布式锁
-    @RequestMapping(value = "testredis")
+    @RequestMapping(value = "/testredis")
     @ResponseBody
-    public Map<String,String> testRedis() throws InterruptedException {
+    public Map<String, String> testRedis() throws InterruptedException {
         HashMap<String, String> map = new HashMap<>();
 
         StringBuilder sb = new StringBuilder();
@@ -81,6 +90,45 @@ public class UserController extends BaseController {
 
         Thread.sleep(10000);
         return map;
+    }
+
+    //测试redis实现分布式锁
+    @RequestMapping(value = "/testredis1")
+    @ResponseBody
+    public CommonReturnType testRedis1() {
+
+        //22-07-06 登录锁定需求 author：王硕
+        Object isLock = redisTemplate.opsForValue().get(USER_LOCK + "123");
+        if (isLock != null)
+            return CommonReturnType.create("密码输错次数过多，用户已被锁定！请一小时后重试！");
+        //22-07-06 登录锁定需求 author：王硕
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        Integer failCount = (Integer) valueOperations.get(LOGIN_FAIL_COUNT + "123");
+        if (failCount == null)
+            valueOperations.set(LOGIN_FAIL_COUNT + "123", 1, 300, TimeUnit.SECONDS);
+        else if (failCount >= 5)
+            valueOperations.set(USER_LOCK + "123", 1, 3600, TimeUnit.SECONDS);
+        else if (failCount < 5) {
+            redisTemplate.opsForValue().increment(LOGIN_FAIL_COUNT + "123");
+        }
+        System.out.println(failCount);
+        return CommonReturnType.create("用户名或密码错误");
+    }
+
+    //测试手动解封
+    @RequestMapping(value = "/testredis2/{userId}")
+    @ResponseBody
+    public CommonReturnType notSilent(@PathVariable("userId") Long userId) {
+        //入参校验
+        if (StringUtil.isBlank(userId.toString())) {
+            return CommonReturnType.create("解锁失败！ 原因：用户为空");
+        }
+        Boolean del1 = redisTemplate.delete(USER_LOCK + userId);
+        redisTemplate.delete(LOGIN_FAIL_COUNT + userId);
+        if (del1)
+            return CommonReturnType.create("解锁成功");
+        else
+            return CommonReturnType.create("解锁失败！ 原因：用户未处于锁定状态");
     }
 
     //减少库存的方法

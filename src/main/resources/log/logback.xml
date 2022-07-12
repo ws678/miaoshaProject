@@ -90,7 +90,7 @@
     <!--打印info级别日志，分别在控制台，fileLog，errorFile输出
         异常日志在上面由过滤器过滤出ERROR日志打印
     -->
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="fileLog" />
         <appender-ref ref="console" />
         <appender-ref ref="errorFile" />

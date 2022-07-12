@@ -25,7 +25,7 @@ public class TestForEach {
 
     /*
         使用forEach来遍历map
-        但是hashSet好像也给自动排序了
+        但是hashSet好像也给自动排序了 百度说是类似hash冲突重构了
      */
     @Test
     public void a() {
