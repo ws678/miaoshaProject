@@ -1,5 +1,6 @@
 package com.miaoshaproject;
 
+import cn.hutool.core.util.StrUtil;
 import com.beust.jcommander.internal.Lists;
 import org.junit.Test;
 
@@ -8,6 +9,7 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class JDK8_Features {
 
@@ -37,6 +39,113 @@ public class JDK8_Features {
                 .limit(4)//限制取前4个元素
                 .peek(System.out::println)//流式处理对象函数
                 .sum());//
+    }
+
+    /**
+     * 2的补充
+     */
+    static class User {
+        private Integer id;
+        private String name;
+        private String city;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public User(Integer id, String name, String city) {
+            this.id = id;
+            this.name = name;
+            this.city = city;
+        }
+
+        @Override
+        public String toString() {
+            return "User{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", city='" + city + '\'' +
+                    '}';
+        }
+    }
+
+    static class TesStream {
+
+        public static void main(String[] args) {
+            List<User> userList = getUserList();
+            userList.stream().flatMap(user -> Arrays.stream(user.getCity().split(","))).forEach(System.out::println);
+            userList.stream().sorted(Comparator.comparingInt(User::getId).reversed()).forEach(System.out::println);
+            userList.stream().map(User::getCity).distinct().forEach(System.out::println);
+            userList.stream().filter(user -> user.getId()>1).skip(1).limit(1).forEach(System.out::println);
+
+            //min：最小值，获取用户最小的id值；
+            int min = userList.stream().min(Comparator.comparingInt(User::getId)).get().getId();
+            //max：最大值，获取用户最大的id值；
+            int max = userList.stream().max(Comparator.comparingInt(User::getId)).get().getId();
+            //sum：求和，对用户ID进行累计求和；
+            int sum = userList.stream().mapToInt(User::getId).sum() ;
+            //count：总数，id小于2的用户总数；
+            long count = userList.stream().filter(user -> user.getId()<2).count();
+            //foreach：遍历，输出北京相关的用户；
+            userList.stream().filter(user -> "北京".equals(user.getCity())).forEach(System.out::println);
+            //findAny：查找符合条件的任意一个元素，获取一个北京用户；
+            User getUser = userList.stream().filter(user -> "北京".equals(user.getCity())).findAny().get();
+            //findFirst：获取符合条件的第一个元素；
+            User getUserFirst = userList.stream().filter(user -> "北京".equals(user.getCity())).findFirst().get();
+            //anyMatch：匹配判断，判断是否存在深圳的用户；
+            boolean matchFlag = userList.stream().anyMatch(user -> "深圳".equals(user.getCity()));
+            //allMatch：全部匹配，判断所有用户的城市不为空；
+            boolean allMatchFlag = userList.stream().allMatch(user -> StrUtil.isNotEmpty(user.getCity()));
+            //noneMatch：全不匹配，判断没有用户的城市为空；
+            boolean noneMatchFlag = userList.stream().noneMatch(user -> StrUtil.isEmpty(user.getCity()));
+
+            //toList：将用户ID存放到List集合中；
+            List<Integer> idList = userList.stream().map(User::getId).collect(Collectors.toList()) ;
+            //toMap：将用户ID和Name以Key-Value形式存放到Map集合中；
+            Map<Integer,String> userMap = userList.stream().collect(Collectors.toMap(User::getId,User::getName));
+            //toSet：将用户所在城市存放到Set集合中；
+            Set<String> citySet = userList.stream().map(User::getCity).collect(Collectors.toSet());
+            //counting：符合条件的用户总数；
+            long userCount = userList.stream().filter(user -> user.getId()>1).collect(Collectors.counting());
+            //summingInt：对结果元素即用户ID求和；
+            Integer sumInt = userList.stream().filter(user -> user.getId()>2).collect(Collectors.summingInt(User::getId)) ;
+            //minBy：筛选元素中ID最小的用户
+            User minId = userList.stream().collect(Collectors.minBy(Comparator.comparingInt(User::getId))).get() ;
+            //joining：将用户所在城市，以指定分隔符链接成字符串；
+            String joinCity = userList.stream().map(User::getCity).collect(Collectors.joining("||"));
+            //System.out.println(joinCity);
+            //groupingBy：按条件分组，以城市对用户进行分组；
+            Map<String,List<User>> groupCity = userList.stream().collect(Collectors.groupingBy(User::getCity));
+        }
+
+        private static List<User> getUserList() {
+            List<User> userList = new ArrayList<>();
+            userList.add(new User(1, "张三", "上海"));
+            userList.add(new User(2, "李四", "北京"));
+            userList.add(new User(3, "王五", "北京"));
+            userList.add(new User(4, "顺六", "上海,杭州"));
+            return userList;
+        }
     }
 
     /**
