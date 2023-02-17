@@ -23,6 +23,9 @@ spring:
   #设置不同环境配置文件读取
   profiles:
     active: dev
+elasticsearch:
+  host: 127.0.0.1
+  port: 9200
 #logback
 logging:
   config: classpath:log/logback.xml
