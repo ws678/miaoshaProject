@@ -1,0 +1,246 @@
+GET _search/
+{
+  "query": {
+    "match_all": {}
+  }
+}
+# 全量修改
+PUT /index01/_doc/1
+{
+  "info":"三国吕布",
+  "email":"123",
+  "name":{
+    "firstname":"吕",
+    "lastname":"布"
+  },
+  "age": 3
+}
+
+#聚合01 bucket
+GET index01/_search
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": 10
+      }
+    }
+  },
+  "size": 0,
+  "aggs": {
+    "test": {
+      "terms": {
+        "field": "age",
+        "size": 10,
+        "order": {
+          "_count": "asc"
+        }
+      }
+    }
+  }
+}
+
+# 新增
+PUT /index01/_doc/6
+{
+  "info":"星外文明李白",
+  "email":"744",
+  "name":{
+    "firstname":"李",
+    "lastname":"白哦"
+  },
+  "age": 72
+}
+
+# 局部修改文档字段
+POST /index01/_update/1
+{
+  "doc":{
+    "email": "666"
+  }
+}
+
+#function score query 人工干预排名
+GET index01/_search
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "range": {
+          "age": {
+            "gte": 0,
+            "lte": 99
+          }
+        }
+      },
+      "functions": [
+        {
+          "filter": {
+            "term": {
+              "name.firstname": "文"
+            }
+          },
+          "weight": 2
+        }
+      ],
+      "boost_mode": "sum"
+    }
+  }
+}
+
+#bool复合查询 must和should参与算分 filter和must_not不参与算分 性能更好
+GET index01/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "name.firstname": {
+              "value": "文"
+            }
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "exists": {
+            "field": "telphone"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "range": {
+            "age": {
+              "gte": 10,
+              "lte": 99
+            }
+          }
+        }
+      ],
+      "should": [
+        {
+          "term": {
+            "info": {
+              "value": "三国"
+            }
+          }
+        },
+        {
+          "term": {
+            "info": {
+              "value": "战国"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+#metrics聚合
+GET index01/_search
+{
+  "size": 0,
+  "aggs": {
+    "nameOne": {
+      "terms": {
+        "field": "email",
+        "size": 10,
+        "order": {
+          "metricsDemo.max": "asc"
+        }
+      },
+      "aggs": {
+        "metricsDemo": {
+          "stats": {
+            "field": "age"
+          }
+        }
+      }
+    }
+  }
+}
+
+#排序 分页 排序之后es就不会打分了
+GET index01/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "from": 0,
+  "size": 2,
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      },
+      "email": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
+#exists 是否存在该字段 或者该条数据不为null 以及 "" 还会排除没有写入索引的字段
+GET _search/
+{
+  "query": {
+    "exists": {
+      "field": "yy"
+    }
+  }
+}
+
+#range范围查询
+GET _search/
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": 1,
+        "lte": 6
+      }
+    }
+  }
+}
+
+#multi 同时查询多个字段 会自动分词 结果有得分
+GET index01/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "三国吕布",
+      "fields": ["info","name.firstname"]
+    }
+  }
+}
+
+# all 所有字段
+GET index01/_search
+{
+  "query": {
+    "match": {
+      "age": 6
+    }
+  }
+}
+
+#高亮 默认情况下 搜索字段需要与高亮字段一致
+GET index01/_search
+{
+  "query": {
+    "match": {
+      "info": "三国"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "info": {
+        "pre_tags": "<ea>",
+        "post_tags": "</ea>"
+      }
+    }
+  }
+}
