@@ -163,6 +163,34 @@ GET index01/_search
   }
 }
 
+# Top Hits Aggregation group by age取三个年龄 然后取他们中排名前二的数据 按照Email倒序
+GET index01/_search
+{
+  "size": 0,
+"aggs": {
+  "termagg": {
+    "terms": {
+      "field": "age",
+      "size": 3
+    },
+    "aggs": {
+      "tophitsagg": {
+        "top_hits": {
+          "size": 2,
+          "sort": [
+            {
+              "email": {
+                "order": "desc"
+              }
+            }
+            ]
+        }
+      }
+    }
+  }
+}
+}
+
 #排序 分页 排序之后es就不会打分了
 GET index01/_search
 {
