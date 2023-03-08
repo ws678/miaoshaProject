@@ -18,7 +18,7 @@ public class RabbitMQConnection {
 
         ConnectionFactory factory = new ConnectionFactory();
         //指明VirtualHost
-        factory.setVirtualHost("/MuPing");
+        //factory.setVirtualHost("/MuPing");
         //设置账号和密码
         factory.setUsername("guest");
         factory.setPassword("guest");
