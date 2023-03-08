@@ -1,9 +1,6 @@
 package com.miaoshaproject.demo;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @Author wangshuo
@@ -139,5 +136,9 @@ public class ThreadPoolDemo {
                 }
             }, 1, 3, TimeUnit.SECONDS);
         }
+    }
+
+    public static void main(String[] args) {
+        ArrayBlockingQueue arrayBlockingQueue = new ArrayBlockingQueue<>(5);
     }
 }
