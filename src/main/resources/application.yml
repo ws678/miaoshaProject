@@ -4,6 +4,13 @@ server:
 #mybatis
 mybatis:
   mapper-locations: classpath:mapping/*.xml
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath:mapping/*.xml # mapper映射包扫描
+  type-aliases-package: com/miaoshaproject/dataobject # entity别名
+  global-config:
+    db-config:
+      id-type: auto #设置全局的ID生成策略为自动递增生成
 #spring
 spring:
   #Freemarker配置

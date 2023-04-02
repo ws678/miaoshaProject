@@ -90,11 +90,19 @@
                enableDeleteByPrimaryKey="false"></table>-->
 
         <!--promo表-->
-        <table tableName="promo" domainObjectName="PromoDO"
+        <!--<table tableName="promo" domainObjectName="PromoDO"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false" enableInsert="true"
+               enableDeleteByPrimaryKey="false"></table>-->
+        <!--mp_user表-->
+        <table tableName="mp_user" domainObjectName="MpUserDO"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false" enableInsert="true"
                enableDeleteByPrimaryKey="false"></table>
     </context>
+
+    <!--mybatis-generator:generate-->
 
 </generatorConfiguration>

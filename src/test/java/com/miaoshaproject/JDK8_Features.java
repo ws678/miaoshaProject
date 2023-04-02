@@ -155,7 +155,7 @@ public class JDK8_Features {
      */
     @Test
     public void testDefaultFunctionInterface() {
-        //可以直接使用接口名.静态方法来访问接口中的静态方法
+        //可以直接使用接口名.静态方法来访问接口中的静态方法 使用实现类是.不出来的
         JDK8Interface1.staticMethod();
         //接口中的默认方法必须通过它的实现类来调用
         new JDK8InterfaceImpl1().defaultMethod();
@@ -171,7 +171,7 @@ public class JDK8_Features {
         }*/
     }
 
-    public class JDK8InterfaceImpl2 implements JDK8Interface1, JDK8Interface2 { //实现接口后，默认方法名相同，必须复写默认方法
+    public class JDK8InterfaceImpl2 implements JDK8Interface1, JDK8Interface2 { //同时实现两个带有默认方法的接口后，默认方法名相同，必须复写默认方法
         @Override
         public void defaultMethod() {
             //接口的

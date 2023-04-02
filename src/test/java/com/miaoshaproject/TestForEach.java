@@ -28,7 +28,7 @@ public class TestForEach {
         但是hashSet好像也给自动排序了 百度说是类似hash冲突重构了
      */
     @Test
-    public void a() {
+    public void a() throws InterruptedException {
         HashMap<String, String> map = new HashMap<>();
         HashMap<String, String> hashMap = new HashMap<>();
         HashSet<String> hashSet = new HashSet<>();
@@ -39,26 +39,31 @@ public class TestForEach {
         hashMap.put("2", "8");
         hashMap.put("3", "1");
         //普通遍历
-        hashMap.forEach(new BiConsumer<String, String>() {
-            @Override
-            public void accept(String s, String s2) {
-                map.put(s, s2);
-            }
+        hashMap.forEach((s, s2) -> {
+            map.put(s, s2);
         });
         System.out.println("map：" + map);
         //放入set自动去重
-        hashMap.forEach(new BiConsumer<String, String>() {
-            @Override
-            public void accept(String s, String s2) {
-                hashSet.add(s2);
-                treeSet.add(s2);
-            }
+        hashMap.forEach((s, s2) -> {
+            hashSet.add(s2);
+            treeSet.add(s2);
         });
         System.out.println("hashSet：" + hashSet);
         System.out.println("treeSet：" + treeSet);
-        //线程安全的原子操作类。 Since 1.8 ， 比Atomic效率要高
+        //线程安全的原子操作类。 Since 1.8 ， 采用分段锁技术 比Atomic效率要高
         LongAdder longAdder = new LongAdder();
-        longAdder.increment();
+        new Thread(() -> {
+            for (int i = 0; i < 200; i++) {
+                longAdder.increment();
+            }
+        }).start();
+        new Thread(() -> {
+            for (int i = 0; i < 200; i++) {
+                longAdder.increment();
+            }
+        }).start();
+        //睡眠一下 等线程执行完
+        Thread.sleep(3000);
         System.out.println(longAdder);
         //时间操作类。 Since 1.8 ， 效率更高
         Instant instant = new Instant();
