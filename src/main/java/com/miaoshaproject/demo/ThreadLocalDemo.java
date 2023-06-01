@@ -2,6 +2,8 @@ package com.miaoshaproject.demo;
 
 /**
  * @description: ThreadLocalTest
+ * EntryDemo中有两个属性 一个是String类型 另一个是ThreadLocal类型
+ * 当出现并发IO的情况 ThreadLocal可以起到很好的线程隔离作用 所以不会出现脏读现象
  * @author: wangshuo
  * @date: 2023-04-25 19:16:59
  */
