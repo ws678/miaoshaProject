@@ -1,7 +1,6 @@
 package com.miaoshaproject;
 
 import cn.hutool.core.util.StrUtil;
-import com.beust.jcommander.internal.Lists;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -13,13 +12,15 @@ import java.util.stream.Collectors;
 
 public class JDK8_Features {
 
-    public List<Integer> list = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
     /**
      * 1.Lambda表达式
      */
     @Test
     public void testLambda() {
+
+        List<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         list.forEach(System.out::println);
         list.forEach(e -> System.out.println("方式二：" + e));
     }
@@ -29,10 +30,11 @@ public class JDK8_Features {
      */
     @Test
     public void testStream() {
-        List<Integer> nums = Lists.newArrayList(1, 1, null, 2, 3, 4, null, 5, 6, 7, 8, 9, 10);
+        List<Integer> nums = new ArrayList<>();
+        Collections.addAll(nums, 1, 1, null, 2, 3, 4, null, 5, 6, 7, 8, 9, 10);
         System.out.println("求和：" + nums
                 .stream()//转成Stream
-                .filter(team -> team != null)//过滤
+                .filter(Objects::nonNull)//过滤
                 .distinct()//去重
                 .mapToInt(num -> num * 2)//map操作
                 .skip(2)//跳过前2个元素
@@ -96,16 +98,16 @@ public class JDK8_Features {
             userList.stream().flatMap(user -> Arrays.stream(user.getCity().split(","))).forEach(System.out::println);
             userList.stream().sorted(Comparator.comparingInt(User::getId).reversed()).forEach(System.out::println);
             userList.stream().map(User::getCity).distinct().forEach(System.out::println);
-            userList.stream().filter(user -> user.getId()>1).skip(1).limit(1).forEach(System.out::println);
+            userList.stream().filter(user -> user.getId() > 1).skip(1).limit(1).forEach(System.out::println);
 
             //min：最小值，获取用户最小的id值；
             int min = userList.stream().min(Comparator.comparingInt(User::getId)).get().getId();
             //max：最大值，获取用户最大的id值；
             int max = userList.stream().max(Comparator.comparingInt(User::getId)).get().getId();
             //sum：求和，对用户ID进行累计求和；
-            int sum = userList.stream().mapToInt(User::getId).sum() ;
+            int sum = userList.stream().mapToInt(User::getId).sum();
             //count：总数，id小于2的用户总数；
-            long count = userList.stream().filter(user -> user.getId()<2).count();
+            long count = userList.stream().filter(user -> user.getId() < 2).count();
             //foreach：遍历，输出北京相关的用户；
             userList.stream().filter(user -> "北京".equals(user.getCity())).forEach(System.out::println);
             //findAny：查找符合条件的任意一个元素，获取一个北京用户；
@@ -120,22 +122,22 @@ public class JDK8_Features {
             boolean noneMatchFlag = userList.stream().noneMatch(user -> StrUtil.isEmpty(user.getCity()));
 
             //toList：将用户ID存放到List集合中；
-            List<Integer> idList = userList.stream().map(User::getId).collect(Collectors.toList()) ;
+            List<Integer> idList = userList.stream().map(User::getId).collect(Collectors.toList());
             //toMap：将用户ID和Name以Key-Value形式存放到Map集合中；
-            Map<Integer,String> userMap = userList.stream().collect(Collectors.toMap(User::getId,User::getName));
+            Map<Integer, String> userMap = userList.stream().collect(Collectors.toMap(User::getId, User::getName));
             //toSet：将用户所在城市存放到Set集合中；
             Set<String> citySet = userList.stream().map(User::getCity).collect(Collectors.toSet());
             //counting：符合条件的用户总数；
-            long userCount = userList.stream().filter(user -> user.getId()>1).collect(Collectors.counting());
+            long userCount = userList.stream().filter(user -> user.getId() > 1).collect(Collectors.counting());
             //summingInt：对结果元素即用户ID求和；
-            Integer sumInt = userList.stream().filter(user -> user.getId()>2).collect(Collectors.summingInt(User::getId)) ;
+            Integer sumInt = userList.stream().filter(user -> user.getId() > 2).collect(Collectors.summingInt(User::getId));
             //minBy：筛选元素中ID最小的用户
-            User minId = userList.stream().collect(Collectors.minBy(Comparator.comparingInt(User::getId))).get() ;
+            User minId = userList.stream().collect(Collectors.minBy(Comparator.comparingInt(User::getId))).get();
             //joining：将用户所在城市，以指定分隔符链接成字符串；
             String joinCity = userList.stream().map(User::getCity).collect(Collectors.joining("||"));
             //System.out.println(joinCity);
             //groupingBy：按条件分组，以城市对用户进行分组；
-            Map<String,List<User>> groupCity = userList.stream().collect(Collectors.groupingBy(User::getCity));
+            Map<String, List<User>> groupCity = userList.stream().collect(Collectors.groupingBy(User::getCity));
         }
 
         private static List<User> getUserList() {
@@ -151,7 +153,7 @@ public class JDK8_Features {
     /**
      * 3.接口新增：默认方法与静态方法
      * default 接口默认实现方法是为了让集合类默认实现这些函数式处理，而不用修改现有代码
-     *  （List继承于Iterable<T>，接口默认方法不必须实现default forEach方法）
+     * （List继承于Iterable<T>，接口默认方法不必须实现default forEach方法）
      */
     @Test
     public void testDefaultFunctionInterface() {
@@ -217,7 +219,7 @@ public class JDK8_Features {
 
     /**
      * 5.引入重复注解
-     *
+     * <p>
      * 1.@Repeatable
      * 2.可以不用以前的“注解容器”写法，直接写2次相同注解即可
      * Java 8在编译器层做了优化，相同注解会以集合的方式保存，因此底层的原理并没有变化。

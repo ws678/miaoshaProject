@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RedisLock implements Lock {
 
     @Autowired
-    RedisTemplate redisTemplate;
+    private RedisUtil redisUtil;
     private String key;
 
     //对外提供私有key变量赋值
@@ -37,9 +37,10 @@ public class RedisLock implements Lock {
 
             //分布式事务保证安全性，使用redis作为锁标识
             //每个key都要不一样
-            boolean setnx = redisTemplate.opsForValue().setIfAbsent(key, "Value", 5,TimeUnit.SECONDS);//设置5秒过期
+            boolean setnx = redisUtil.setnx(key, "随便", 5);
+            System.out.println(Thread.currentThread().getName() + " setnx = " + setnx);
             if (setnx)
-                return;
+                break;
             else
                 System.out.println(Thread.currentThread().getName() + "等待中");
         }
@@ -63,7 +64,7 @@ public class RedisLock implements Lock {
     @Override
     public void unlock() {
 
-        redisTemplate.delete(key);
+        redisUtil.del(key);
     }
 
     @Override
