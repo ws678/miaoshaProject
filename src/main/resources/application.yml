@@ -1,6 +1,6 @@
 #tomcat
 server:
-  port: 8080
+  port: 8412
 #mybatis
 mybatis:
   mapper-locations: classpath:mapping/*.xml
